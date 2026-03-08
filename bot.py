@@ -1,50 +1,40 @@
 import logging
 import random
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 logging.basicConfig(level=logging.INFO)
-TOKEN = '8591103954:AAECK7gVJBxVumhkiRJCNjGg38cFj-SYXyI'
+
+TOKEN = '8591103954:AAHT_7rhAtmOISrFuwtWYCDaWhnp8Vt18Mk'
 
 LOVE_PHRASES = [
     "Каждое утро я просыпаюсь и понимаю, что самый счастливый человек на Земле — это я, потому что ты есть у меня. 💗",
     "В этом огромном мире моя душа всегда находит покой только рядом с тобой. 💗",
-    "Твоя улыбка для меня дороже всех сокровищ мира — она освещает мою жизнь. 💗",
-    "Я люблю тебя не за что-то, а просто потому, что ты — это ты. 💗",
     "ты мой сладкий медвежонок 💗",
     "мой любимый медвежонок это ты 💗",
 ]
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+def start(update: Update, context: CallbackContext):
     name = update.effective_user.first_name
-    await update.message.reply_text(f'Привет, {name}! Я бот от Савелия, напиши мне 💗')
+    update.message.reply_text(f'Привет, {name}! Я бот от Савелия, напиши мне 💗')
 
-async def love_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(random.choice(LOVE_PHRASES))
+def love(update: Update, context: CallbackContext):
+    update.message.reply_text(random.choice(LOVE_PHRASES))
 
-async def bear_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    bear = ["ты мой сладкий медвежонок 💗", "мой любимый медвежонок это ты 💗", "ты мой золотой медвежонок 💗"]
-    await update.message.reply_text(random.choice(bear))
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text.lower()
-    if 'люблю' in text:
-        await update.message.reply_text(random.choice(LOVE_PHRASES))
-    elif 'медвежонок' in text:
-        bear = ["ты мой сладкий медвежонок 💗", "мой любимый медвежонок это ты 💗"]
-        await update.message.reply_text(random.choice(bear))
-    else:
-        await update.message.reply_text(random.choice(LOVE_PHRASES))
+def handle_message(update: Update, context: CallbackContext):
+    update.message.reply_text(random.choice(LOVE_PHRASES))
 
 def main():
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("love", love_command))
-    app.add_handler(CommandHandler("bear", bear_command))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    print("Бот запущен!")
-    app.run_polling()
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+    
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("love", love))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    
+    updater.start_polling()
+    print("✅ Бот запущен!")
+    updater.idle()
 
 if __name__ == '__main__':
     main()
-  
