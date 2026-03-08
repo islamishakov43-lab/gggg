@@ -1,1 +1,7 @@
 python-telegram-bot==13.13
+urllib3<2.0.0
+requests<3.0.0
+certifi
+chardet
+idna
+six
